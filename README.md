@@ -7,3 +7,5 @@ Actions
 - Hit
 - Double Down
 - Split
+
+### Reinforcement Learning Environment
