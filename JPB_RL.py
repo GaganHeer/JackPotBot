@@ -24,7 +24,7 @@ for i in range(num_episodes):
     print ("Dealer Cards:", state[3])
     print("Dealer Total:", state[4])
     print("Dealer Show Card:", state[0])
-    print("Player Has Useable Ace:", state[1])
+    print("Useable Aces:", state[1])
     print("\n")
     print("---GAME STARTING---")
 
@@ -56,11 +56,12 @@ for i in range(num_episodes):
             print("Dealer Total:", observation[4])
             print("Dealer Show Card:", observation[0])
             print("Useable Aces:", observation[1])
-            print("Reward: ", reward)
             print("Done: ", done)
+            print("Reward: ", reward)
             print("")
         totalReward += reward
         
+        # Check if any hand is not completed else keep looping
         keys = done.keys()
         for key in keys:
             if(done.get(key) == False):
