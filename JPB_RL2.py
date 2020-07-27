@@ -1,19 +1,19 @@
-import time
+# Actions are based on QTable (JPB_QL)
+
 import gym
 import random as rand
+from prettytable import PrettyTable as pt
 import JPB_BJ as bj
 import JPB_QL as ql
-from prettytable import PrettyTable as pt
+from helpers import stats as st
 
 env = bj.BlackjackEnv()
-numGames = 10000
-epsilon = 1.0
-alphaFac = 0.8
-gammaFac = 0.9
+numGames = 20000
+explorationRate = 1.0
+learnRate = 0.8
+discRate = 0.9
 rewardList = []
-
-
-agent = ql.QLearning(alphaFac, gammaFac, epsilon, numGames)
+agent = ql.QLearning(learnRate, discRate, explorationRate, numGames)
 
 for i in range(numGames):
     # Reset the blackjack env and draw a new hand
@@ -33,23 +33,22 @@ for i in range(numGames):
     print("---GAME STARTING---")
 
     while not finished:
+        # Check if hand is splittable
         canSplit = False
         if((len(state[3][handNum]) == 2) and state[3][handNum][0] == state[3][handNum][1]):
             canSplit = True
         # Seperate each hand that the player is playing into it's own state
         currentState = (state[0], state[1][handNum], state[2][handNum], canSplit)
-        
         # Pick a random action
         randomAction = agent.decideAction(currentState)
         # Results after performing the action
         observation,reward,done,info = env.step(randomAction, handNum)
-
+        # Check if next hand is splittable
         canSplit = False
         if((len(observation[3][handNum]) == 2) and observation[3][handNum][0] == observation[3][handNum][1]):
             canSplit = True
         # Seperate each hand that the player is playing into it's own state
         nextObs = (observation[0], observation[1][handNum], observation[2][handNum], canSplit)
-
         # Pass player's state, action, reward and next state to adjust q-table
         agent.updateQValue(currentState, randomAction, reward[handNum], nextObs)
         # Assign the observation after performing an action as the new state
@@ -76,33 +75,17 @@ for i in range(numGames):
             else:
                 finished = True
 
+    # Add up and display total reward for the game
     for key in reward:
         totalReward += reward[key]
     rewardList.append(totalReward)
     print("=====================================")
     print('Game', i,', Total reward:', totalReward)
 
-print("")
-print("Q TABLE")
-t = pt(['Player Total', 'Can Split', 'Useable Ace', 'Dealer Upcard', 'Stand Reward', 'Hit Reward', 'Double Down Reward', 'Split Reward'])
-qtable = agent.getQTable()
-for key in qtable:
-    if(len(qtable[key]) == 4):
-        t.add_row([key[2], key[3], key[1], key[0], qtable[key][0], qtable[key][1], qtable[key][2], qtable[key][3]])
-    else:
-        t.add_row([key[2], key[3], key[1], key[0], qtable[key][0], qtable[key][1], qtable[key][2], 'N/A'])
-print(t)
-print("")
-
-splitAmt = 10
-episodeSplit = (numGames/splitAmt)
-i = 0
-while(i < splitAmt):
-    i += 1
-    summingRange = int(i * episodeSplit)
-    avg = (float(sum(rewardList[0:summingRange]))/summingRange)
-    print("TOTAL REWARDS AFTER", summingRange, "GAMES:", sum(rewardList[0:summingRange]))
-    print("AVG REWARDS AFTER", summingRange, "GAMES:", avg)
-    print("")
-
+# Display QTable
+st.displayQTable(agent)
+# Export QTable
+st.exportQTable(agent)
+# Display average rewards
+st.getAvgRewards(numGames, rewardList)
 env.close()
