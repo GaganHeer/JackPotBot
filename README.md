@@ -9,3 +9,6 @@ Actions
 - Split
 
 ### Reinforcement Learning Environment
+RL = Randomized actions
+RL2 = QLearning actions
+RL3 = Neural Network actions
