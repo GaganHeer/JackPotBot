@@ -1,3 +1,5 @@
+# Actions are completely randomized
+
 import time
 import gym
 import random as rand

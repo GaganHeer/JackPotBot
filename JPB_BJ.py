@@ -14,8 +14,6 @@ def drawCard():
 # Draw two cards randomly from the deck
 def drawHand():
     hand = [[drawCard(), drawCard()]]
-    #hand = {}
-    #hand[0] = [drawCard(), drawCard()]
     return hand
 
 # Determine if there is an ace in hand that can be used as an 11 without going over 21
@@ -37,7 +35,7 @@ def handStrength(hand):
         return 0
     return handTotal(hand)
 
-# Determine the reward that the player will recieve - if the player won then it will be a positive reward else a negative reward
+# Determine the reward that the player will recieve - if the player won then it will be a positive reward if the dealer won it will be a negative reward, else neutral reward
 def getReward(playerStrength, dealerStrength):
     reward = (playerStrength - dealerStrength)
     if(reward > 0):
@@ -50,14 +48,19 @@ def getReward(playerStrength, dealerStrength):
 class BlackjackEnv(gym.Env):
 
     def __init__(self):
-        # 4 possible actions - stand (0), hit (1), double down (2), split (3)
+        # 4 possible actions
+        # Stand (0)
+        # Hit (1)
+        # Double down (2)
+        # Split (3)
         self.action_space = spaces.Discrete(4)
-        # Player's hand total
+        # 4 possible state variables
+        # Player's hand total - from low double ace (2) to hitting on blackjack and getting an ace (32) (some of these outcomes are unobtainable but still included)
         # Player has splittable hand
-        # Dealer's upcard
+        # Dealer's upcard - from ace to ten
         # Player has useable ace
         self.observation_space = spaces.Tuple((                       
-            spaces.Discrete(20),
+            spaces.Discrete(31),
             spaces.Discrete(2),
             spaces.Discrete(10),
             spaces.Discrete(2)))

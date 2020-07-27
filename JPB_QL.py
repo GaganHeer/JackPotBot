@@ -1,39 +1,39 @@
 import random
 
 class QLearning():
-    # Alpha factor determines the learning rate (closer to 0 means considering less info while closer to 1 means only considering more recent info)
-    # Gamma factor determines the discount rate (closer to 0 means considering short term rewards while closer to 1 means considering long term rewards)
-    # Epsilon determines the exploration rate
+    # Learning Rate determines how quickly the agent tries to learn (closer to 0 means considering less info while closer to 1 means only considering more recent info)
+    # Discount Rate determines how valuable the agent thinks each reward is (closer to 0 means considering short term rewards while closer to 1 means considering long term rewards)
+    # Exploration Rate determines how often the agent explores an alternate option
     # Initial Decay is the small decay factor used in the first 25% and last 25% of games
     # Middle Decay is the large decay factor used in the middle 50% of games
-    def __init__(self, alphaFac, gammaFac, epsilon, numGames):
-        self.alphaFac = alphaFac
-        self.gammaFac = gammaFac        
+    def __init__(self, learnRate, discRate, explorationRate, numGames):
+        self.learnRate = learnRate
+        self.discRate = discRate        
         self.numGames = numGames
         self.numGamesLeft = numGames
-        self.epsilon = epsilon
-        self.initDecay = (0.25 * epsilon) / (0.25 * numGames)
-        self.midDecay = (0.5 * epsilon) / (0.5 * numGames)
+        self.explorationRate = explorationRate
+        self.initDecay = (0.25 * explorationRate) / (0.25 * numGames)
+        self.midDecay = (0.5 * explorationRate) / (0.5 * numGames)
         self.QTable = dict()
         self.validActions = list(range(4))
         
-    # Update alpha factor and epsilon value per action
+    # Update learning rate and exploration rate value per action
     def updateParams(self):
         if self.numGamesLeft > 0.75 * self.numGames:
-            self.epsilon -= self.initDecay
+            self.explorationRate -= self.initDecay
         elif self.numGamesLeft > 0.25 * self.numGames:
-            self.epsilon -= self.midDecay
+            self.explorationRate -= self.midDecay
         elif self.numGamesLeft > 0:
-            self.epsilon -= self.initDecay
+            self.explorationRate -= self.initDecay
         else:
-            self.epsilon = 0.0
-            self.alphaFac = 0.0
+            self.explorationRate = 0.0
+            self.learnRate = 0.0
         self.numGamesLeft -= 1
 
     # Creates QValue if obs doesn't exist in QTable 
     # Set initial value to 0 for each possible action of the new QValue
     def createQValue(self, obs):
-        if obs not in self.QTable:           
+        if obs not in self.QTable:
             if(obs[3]):
                 self.validActions = list(range(4))
             else:
@@ -51,7 +51,7 @@ class QLearning():
         self.createQValue(obs)
 
         # Choose action based on highest QValue
-        if random.random() > self.epsilon:
+        if random.random() > self.explorationRate:
             maxQ = self.getMaxQValue(obs)
             maxQList = []
             for key in self.QTable[obs].keys():
@@ -71,7 +71,7 @@ class QLearning():
     # Update QValue after performing an action
     def updateQValue(self, obs, action, reward, nextObs):
         # QValue = old QValue + learning rate * (reward + (discount rate * max QValue after action) - old QValue)
-        self.QTable[obs][action] += self.alphaFac * (reward + (self.gammaFac * self.getMaxQValue(nextObs)) - self.QTable[obs][action])
+        self.QTable[obs][action] += self.learnRate * (reward + (self.discRate * self.getMaxQValue(nextObs)) - self.QTable[obs][action])
     
     # Return entire QTable
     def getQTable(self):
