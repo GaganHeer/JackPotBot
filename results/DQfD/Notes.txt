@@ -1,0 +1,5 @@
+DQfD
+20 batch at a time
+single replay for every experience so everything is trained on
+lambda const used
+nsteps = 5

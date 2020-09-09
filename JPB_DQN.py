@@ -1,9 +1,10 @@
 import random
 import numpy as np
-import keras
-from keras.models import Sequential, load_model
-from keras.layers.core import Dropout, Dense, Activation, Flatten
-from keras.optimizers import Adam
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras.models import Sequential, load_model
+from tensorflow.keras.layers import Dropout, Dense, Activation, Flatten
+from tensorflow.keras.optimizers import SGD
 from collections import deque
 from helpers.action import Action
 
@@ -21,11 +22,13 @@ class DQN():
         self.actionSpace = actionSpace
         self.batchSize = 20
         self.memory = deque(maxlen=10000)
+
         self.model = Sequential()
-        self.model.add(Dense(24, input_shape=(observationSpace,), activation="relu"))
-        self.model.add(Dense(24, activation="relu"))
+        self.model.add(Dense(16, input_shape=(observationSpace,), activation="relu"))
+        self.model.add(Dense(32, activation="relu"))
+        self.model.add(Dense(16, activation="relu"))
         self.model.add(Dense(self.actionSpace, activation="linear"))
-        self.model.compile(loss="mse", optimizer=Adam(lr=learnRate))
+        self.model.compile(loss="mse", optimizer=SGD(lr=learnRate))
 
     # Store information that can be sampled from at a later point
     def storeExperience(self, currentState, action, reward, nextObs, done):
