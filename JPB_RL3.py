@@ -8,9 +8,11 @@ from prettytable import PrettyTable as pt
 import JPB_BJ as bj
 import JPB_DQN as dqn
 from helpers import stats as st
+import datetime
 
+startTime = str(datetime.datetime.now())
 env = bj.BlackjackEnv()
-numGames = 1000
+numGames = 10000
 explorationMin = 0.01
 explorationMax = 1.0
 explorationDecay = 0.995
@@ -69,7 +71,7 @@ for i in range(numGames):
         print("Dealer Show Card:", observation[0])
         print("Useable Aces:", observation[1])
         print("Done: ", done)
-        print("Reward: ", reward)
+        print("Reward: ", reward, '\n')
         
         keys = done.keys()
         for key in keys:
@@ -87,9 +89,10 @@ for i in range(numGames):
     rewardList.append(totalReward)
     print("\n=====================================")
     print('Game', i,', Total reward:', totalReward)
+endTime = str(datetime.datetime.now())
 
 # Display and export QTable
-st.displayAndExportQTable(agent, observationSpace, actionSpace)
+st.displayAndExportQTable(agent, observationSpace, actionSpace, "DQN", numGames)
 # Display average rewards
-st.getAvgRewards(numGames, rewardList)
+st.getAvgRewards(numGames, rewardList, startTime, endTime)
 env.close()
