@@ -2,16 +2,18 @@
 
 import gym
 import random as rand
+import datetime
 from prettytable import PrettyTable as pt
 import JPB_BJ as bj
 import JPB_QL as ql
 from helpers import stats as st
 
+startTime = str(datetime.datetime.now())
 env = bj.BlackjackEnv()
-numGames = 20000
+numGames = 10000
 explorationRate = 1.0
-learnRate = 0.8
-discRate = 0.9
+learnRate = 0.1
+discRate = 0.995
 rewardList = []
 agent = ql.QLearning(learnRate, discRate, explorationRate, numGames)
 
@@ -82,10 +84,13 @@ for i in range(numGames):
     print("=====================================")
     print('Game', i,', Total reward:', totalReward)
 
+endTime = str(datetime.datetime.now())
 # Display QTable
 st.displayQTable(agent)
 # Export QTable
-st.exportQTable(agent)
+resultFile = st.exportQTable(agent, numGames)
 # Display average rewards
-st.getAvgRewards(numGames, rewardList)
+rewardFile = st.getAvgRewards(numGames, rewardList, startTime, endTime)
+# Calculates accuracy of model based on the action it takes in each possible state
+st.calcAccuracy(resultFile)
 env.close()

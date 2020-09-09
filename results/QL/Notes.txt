@@ -1,0 +1,3 @@
+QL
+learn rate = 0.8
+one experience update per game

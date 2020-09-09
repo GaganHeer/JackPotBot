@@ -1,0 +1,4 @@
+DQN
+simple model
+20 batch one at a time
+single QUpdates
